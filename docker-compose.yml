@@ -1,0 +1,30 @@
+services:
+  airmont:
+    build: airmont
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:mysql://airmontravel/airmont?createDatabaseIfNotExist=true&serverTimezone=UTC
+      DB_USER_NAME: root
+      DB_PASSWORD: WorkbenchMySQL1
+      MERCADO_PAGO_ACCESS_TOKEN: ${MERCADO_PAGO_ACCESS_TOKEN}
+      MERCADO_PAGO_NOTIFICATION_URL: ${MERCADO_PAGO_NOTIFICATION_URL}
+    volumes:
+      - ./.env:/.env
+    restart: always
+    depends_on:
+      airmontravel:
+        condition: service_healthy
+  airmontravel:
+    image: mysql:8.0.33
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: WorkbenchMySQL1
+      MYSQL_PASSWORD: WorkbenchMySQL1
+      MYSQL_DATABASE: airmont
+    restart: always
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 10
